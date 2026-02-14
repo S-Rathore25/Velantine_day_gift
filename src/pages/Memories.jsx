@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Heart, Sparkles, Music, ArrowLeft } from 'lucide-react';
+import { X, Play, Heart, Sparkles, Music, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Confetti from 'react-confetti';
 
 // Your beautiful memories! 💕
@@ -123,7 +123,7 @@ const Memories = () => {
 
     const selectedMedia = mediaItems.find(m => m.id === selectedId);
 
-    // Reset music when modal closes
+    // Reset music ONLY when modal closes (selectedId becomes null)
     React.useEffect(() => {
         if (!selectedId) {
             setIsPlaying(false);
@@ -132,7 +132,40 @@ const Memories = () => {
                 audioRef.current.currentTime = 0;
             }
         }
+        // Use a ref to track previous selectedId to detect if we switched images or closed modal
     }, [selectedId]);
+
+    // Navigation Handlers
+    const handleNext = (e) => {
+        e.stopPropagation();
+        const currentIndex = filteredItems.findIndex(item => item.id === selectedId);
+        if (currentIndex !== -1) {
+            const nextIndex = (currentIndex + 1) % filteredItems.length;
+            setSelectedId(filteredItems[nextIndex].id);
+        }
+    };
+
+    const handlePrev = (e) => {
+        e.stopPropagation();
+        const currentIndex = filteredItems.findIndex(item => item.id === selectedId);
+        if (currentIndex !== -1) {
+            const prevIndex = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
+            setSelectedId(filteredItems[prevIndex].id);
+        }
+    };
+
+    // Keyboard Navigation
+    React.useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (selectedId) {
+                if (e.key === 'ArrowLeft') handlePrev(e);
+                if (e.key === 'ArrowRight') handleNext(e);
+                if (e.key === 'Escape') setSelectedId(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedId, filter]); // Re-bind when state changes to capture correct closure
 
     // Music control
     React.useEffect(() => {
@@ -418,6 +451,30 @@ const Memories = () => {
                                     </motion.div>
                                 ))}
                             </div>
+
+                            {/* Navigation Buttons - Left */}
+                            <motion.button
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={handlePrev}
+                                className="fixed left-2 md:left-8 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-pink-500/80 backdrop-blur-md p-3 rounded-full text-white shadow-xl transition-all border border-white/30 group"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                            >
+                                <ChevronLeft size={32} className="group-hover:scale-110 transition-transform" />
+                            </motion.button>
+
+                            {/* Navigation Buttons - Right */}
+                            <motion.button
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={handleNext}
+                                className="fixed right-2 md:right-8 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-pink-500/80 backdrop-blur-md p-3 rounded-full text-white shadow-xl transition-all border border-white/30 group"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                            >
+                                <ChevronRight size={32} className="group-hover:scale-110 transition-transform" />
+                            </motion.button>
 
                             {/* Main content card */}
                             <motion.div
