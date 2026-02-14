@@ -136,12 +136,20 @@ const Memories = () => {
 
     // Music control
     React.useEffect(() => {
+        console.log('Music state changed:', isPlaying);
         if (audioRef.current) {
             if (isPlaying) {
-                audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => console.log('Audio playing'))
+                        .catch(e => console.error('Audio play failed:', e));
+                }
             } else {
                 audioRef.current.pause();
             }
+        } else {
+            console.error('Audio ref is null');
         }
     }, [isPlaying]);
 
@@ -319,14 +327,16 @@ const Memories = () => {
                 {selectedId && selectedMedia && (
                     <>
                         {/* Confetti celebration! */}
-                        <Confetti
-                            width={window.innerWidth}
-                            height={window.innerHeight}
-                            recycle={true}
-                            numberOfPieces={150}
-                            colors={['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1', '#ff69b4', '#db7093']}
-                            gravity={0.15}
-                        />
+                        <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, zIndex: 100 }}>
+                            <Confetti
+                                width={window.innerWidth}
+                                height={window.innerHeight}
+                                recycle={true}
+                                numberOfPieces={150}
+                                colors={['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1', '#ff69b4', '#db7093']}
+                                gravity={0.15}
+                            />
+                        </div>
 
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -337,7 +347,7 @@ const Memories = () => {
                         >
                             {/* Animated gradient background */}
                             <motion.div
-                                className="absolute inset-0 bg-gradient-to-br from-pink-600 via-purple-600 to-rose-600"
+                                className="absolute inset-0 bg-gradient-to-br from-pink-600 via-purple-600 to-rose-600 pointer-events-none"
                                 animate={{
                                     background: [
                                         'linear-gradient(to bottom right, #db2777, #9333ea, #e11d48)',
@@ -429,7 +439,7 @@ const Memories = () => {
                             >
                                 {/* Glowing border effect */}
                                 <motion.div
-                                    className="absolute inset-0 rounded-3xl"
+                                    className="absolute inset-0 rounded-3xl pointer-events-none"
                                     style={{
                                         background: 'linear-gradient(45deg, #ff69b4, #9333ea, #ff1493, #db2777)',
                                         backgroundSize: '400% 400%',
@@ -448,8 +458,12 @@ const Memories = () => {
                                 <div className="relative bg-white rounded-3xl m-1">
                                     {/* Music button with animation */}
                                     <motion.button
-                                        onClick={() => setIsPlaying(!isPlaying)}
-                                        className={`absolute top-4 right-4 ${isPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-pink-500 to-rose-500'} hover:from-pink-600 hover:to-rose-600 p-3 rounded-full z-20 shadow-lg`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            console.log('Music button clicked!');
+                                            setIsPlaying(!isPlaying);
+                                        }}
+                                        className={`absolute top-4 right-4 ${isPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-pink-500 to-rose-500'} hover:from-pink-600 hover:to-rose-600 p-3 rounded-full cursor-pointer shadow-lg z-50`}
                                         whileHover={{ scale: 1.2 }}
                                         whileTap={{ scale: 0.9 }}
                                         animate={{
