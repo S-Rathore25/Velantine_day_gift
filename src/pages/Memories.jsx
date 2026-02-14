@@ -114,6 +114,7 @@ const mediaItems = [
 ];
 
 
+
 const Memories = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [filter, setFilter] = useState('images'); // 'images', 'videos'
@@ -121,6 +122,17 @@ const Memories = () => {
     const audioRef = React.useRef(null);
 
     const selectedMedia = mediaItems.find(m => m.id === selectedId);
+
+    // Reset music when modal closes
+    React.useEffect(() => {
+        if (!selectedId) {
+            setIsPlaying(false);
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        }
+    }, [selectedId]);
 
     // Music control
     React.useEffect(() => {
@@ -551,54 +563,52 @@ const Memories = () => {
                                         </motion.p>
 
                                         <motion.div
-                                            className="flex items-center gap-2 text-pink-600 text-sm mb-3"
+                                            className="flex items-center justify-between gap-4 mb-3"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                         >
-                                            <Sparkles className="w-4 h-4" />
-                                            <span className="font-medium">{selectedMedia.date}</span>
-                                            <Sparkles className="w-4 h-4" />
+                                            {/* Date and emojis on left */}
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 text-pink-600 text-sm">
+                                                    <Sparkles className="w-4 h-4" />
+                                                    <span className="font-medium">{selectedMedia.date}</span>
+                                                    <Sparkles className="w-4 h-4" />
+                                                </div>
+
+                                                {/* Floating emojis */}
+                                                <div className="flex gap-2">
+                                                    {['💕', '✨', '🌹', '💖', '😘'].map((emoji, i) => (
+                                                        <motion.span
+                                                            key={i}
+                                                            className="text-xl"
+                                                            animate={{
+                                                                y: [0, -6, 0],
+                                                                rotate: [0, 8, -8, 0],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                                delay: i * 0.2,
+                                                            }}
+                                                        >
+                                                            {emoji}
+                                                        </motion.span>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Back button on right - smaller */}
+                                            <motion.button
+                                                onClick={() => setSelectedId(null)}
+                                                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-full shadow-lg font-medium text-sm"
+                                                whileHover={{ scale: 1.05, x: -3 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <ArrowLeft size={16} />
+                                                <span>Back</span>
+                                            </motion.button>
                                         </motion.div>
-
-                                        {/* Floating emojis at bottom */}
-                                        <div className="flex justify-center gap-3">
-                                            {['💕', '✨', '🌹', '💖', '😘'].map((emoji, i) => (
-                                                <motion.span
-                                                    key={i}
-                                                    className="text-2xl"
-                                                    animate={{
-                                                        y: [0, -8, 0],
-                                                        rotate: [0, 10, -10, 0],
-                                                    }}
-                                                    transition={{
-                                                        duration: 2,
-                                                        repeat: Infinity,
-                                                        delay: i * 0.2,
-                                                    }}
-                                                >
-                                                    {emoji}
-                                                </motion.span>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Back button - Fixed at bottom */}
-                                    <motion.div
-                                        className="sticky bottom-0 left-0 right-0 p-4 flex justify-center bg-gradient-to-t from-white via-white to-transparent"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                    >
-                                        <motion.button
-                                            onClick={() => setSelectedId(null)}
-                                            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-full shadow-xl font-medium text-lg"
-                                            whileHover={{ scale: 1.05, x: -5 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            <ArrowLeft size={22} />
-                                            <span>Back to Gallery</span>
-                                        </motion.button>
                                     </motion.div>
                                 </div>
                             </motion.div>
