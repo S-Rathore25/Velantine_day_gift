@@ -59,7 +59,7 @@ const Letter = () => {
                     </p>
                     <p className="text-right font-bold mt-8">
                         Yours always,<br />
-                        [Your Name] ❤️
+                        Sumit❤️
                     </p>
                 </div>
             </motion.div>
