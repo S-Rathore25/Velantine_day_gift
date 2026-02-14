@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: valentine-day-gift
-    env: static
+    name: valentine-site
+    runtime: node
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    startCommand: npx serve -s dist
+    plan: free
+
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
