@@ -19,7 +19,7 @@ const Letter = () => {
         <div className="min-h-screen bg-[#fdfbf7] pt-20 pb-24 px-6 relative overflow-hidden">
             <audio
                 ref={audioRef}
-                src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+                src="/music/love-song.mp3"
                 loop
             />
 
